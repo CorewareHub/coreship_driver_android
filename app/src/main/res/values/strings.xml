@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">coreSHIP Driver</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">John Doe</string>
+    <string name="nav_header_subtitle">great.driver@coreshipdriver.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_dashboard">Dashboard</string>
+    <string name="menu_sprint_list">Sprint List</string>
+    <string name="menu_profile">Profile</string>
+</resources>
