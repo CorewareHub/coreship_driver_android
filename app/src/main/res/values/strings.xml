@@ -26,6 +26,9 @@
     <!-- Incident Report -->
     <string name="incident_report_text">This is the Incident Report view</string>
 
+    <!-- Login -->
+    <string name="login_button">Login</string>
+
     <!-- Menu -->
     <string name="menu_about">About</string>
     <string name="menu_badge">Badge</string>
