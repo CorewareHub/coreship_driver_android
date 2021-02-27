@@ -30,6 +30,8 @@
             android:launchMode="singleTask"
             android:theme="@style/Theme.CoreSHIPDriver.NoActionBar"/>
 
+        <!-- Services -->
+
     </application>
 
 </manifest>

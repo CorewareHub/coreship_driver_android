@@ -6,7 +6,7 @@ import android.content.Intent;
 import com.coreware.coreshipdriver.ui.activities.LoginActivity;
 import com.coreware.coreshipdriver.ui.activities.MainActivity;
 
-public class IntentLaunchUtil {
+public final class IntentLaunchUtil {
 
     private IntentLaunchUtil() {
         // Cannot instantiate class

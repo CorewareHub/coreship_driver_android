@@ -20,6 +20,10 @@
     <!-- Edit Sprints -->
     <string name="edit_sprints_text">This is the Edit Sprints view</string>
 
+    <!-- Error messages -->
+    <string name="error_message_internet">There was a problem with your network request. Please try again later.</string>
+    <string name="error_message_internet_timeout">Your network request has timed out.</string>
+
     <!-- Express Pickup -->
     <string name="express_pickup_text">This is the Express Pickup view</string>
 

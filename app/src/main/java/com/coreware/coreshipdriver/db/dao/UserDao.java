@@ -1,0 +1,30 @@
+package com.coreware.coreshipdriver.db.dao;
+
+import com.coreware.coreshipdriver.db.entities.User;
+
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Update;
+
+@Dao
+public interface UserDao {
+
+    @Query("SELECT * FROM User LIMIT 1")
+    User getCurrentUser();
+
+    @Update
+    void update(User...users);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insert(User user);
+
+    @Delete
+    void delete(User...users);
+
+    @Query("DELETE FROM User")
+    void deleteAll();
+
+}
