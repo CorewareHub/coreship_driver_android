@@ -1,12 +1,9 @@
 package com.coreware.coreshipdriver.ui.activities;
 
 import android.os.Bundle;
-import android.view.View;
 import android.view.Menu;
 
 import com.coreware.coreshipdriver.R;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -32,19 +29,15 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+                R.id.nav_dashboard, R.id.nav_sprint_list, R.id.nav_edit_sprints,
+                R.id.nav_incident_report, R.id.nav_profile, R.id.nav_badge,
+                R.id.nav_express_pickup,R.id.nav_settings,
+                R.id.nav_about, R.id.nav_logout)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
     }
 
     @Override

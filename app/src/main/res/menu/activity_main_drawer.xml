@@ -3,18 +3,61 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
+    <item android:title="Driver">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_dashboard"
+                    android:icon="@android:drawable/ic_menu_myplaces"
+                    android:title="@string/menu_dashboard" />
+                <item
+                    android:id="@+id/nav_sprint_list"
+                    android:icon="@android:drawable/ic_menu_agenda"
+                    android:title="@string/menu_sprint_list" />
+                <item
+                    android:id="@+id/nav_edit_sprints"
+                    android:icon="@android:drawable/ic_menu_edit"
+                    android:title="@string/menu_edit_sprints" />
+                <item
+                    android:id="@+id/nav_incident_report"
+                    android:icon="@android:drawable/ic_menu_report_image"
+                    android:title="@string/menu_incident_report" />
+                <item
+                    android:id="@+id/nav_profile"
+                    android:icon="@android:drawable/ic_menu_info_details"
+                    android:title="@string/menu_profile" />
+                <item
+                    android:id="@+id/nav_badge"
+                    android:icon="@android:drawable/ic_menu_gallery"
+                    android:title="@string/menu_badge" />
+            </group>
+        </menu>
+    </item>
+
+    <item android:title="Warehouse">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_express_pickup"
+                    android:icon="@android:drawable/ic_menu_compass"
+                    android:title="@string/menu_express_pickup" />
+                <item
+                    android:id="@+id/nav_settings"
+                    android:icon="@android:drawable/ic_menu_preferences"
+                    android:title="@string/menu_settings" />
+            </group>
+        </menu>
+    </item>
+
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_home"
-            android:icon="@android:drawable/ic_menu_myplaces"
-            android:title="@string/menu_dashboard" />
-        <item
-            android:id="@+id/nav_gallery"
-            android:icon="@android:drawable/ic_menu_agenda"
-            android:title="@string/menu_sprint_list" />
-        <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_about"
             android:icon="@android:drawable/ic_dialog_info"
-            android:title="@string/menu_profile" />
+            android:title="@string/menu_about" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@android:drawable/ic_menu_close_clear_cancel"
+            android:title="@string/menu_logout" />
     </group>
+
 </menu>

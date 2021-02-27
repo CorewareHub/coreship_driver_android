@@ -3,23 +3,71 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@+id/nav_dashboard">
 
+    <!-- Driver Navigation -->
     <fragment
-        android:id="@+id/nav_home"
+        android:id="@+id/nav_dashboard"
         android:name="com.coreware.coreshipdriver.ui.fragments.DashboardFragment"
         android:label="@string/menu_dashboard"
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
-        android:id="@+id/nav_gallery"
+        android:id="@+id/nav_sprint_list"
         android:name="com.coreware.coreshipdriver.ui.fragments.SprintListFragment"
         android:label="@string/menu_sprint_list"
         tools:layout="@layout/fragment_sprint_list" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
+        android:id="@+id/nav_edit_sprints"
+        android:name="com.coreware.coreshipdriver.ui.fragments.EditSprintsFragment"
+        android:label="@string/menu_edit_sprints"
+        tools:layout="@layout/fragment_edit_sprints" />
+
+    <fragment
+        android:id="@+id/nav_incident_report"
+        android:name="com.coreware.coreshipdriver.ui.fragments.IncidentReportFragment"
+        android:label="@string/menu_incident_report"
+        tools:layout="@layout/fragment_incident_report" />
+
+    <fragment
+        android:id="@+id/nav_profile"
         android:name="com.coreware.coreshipdriver.ui.fragments.ProfileFragment"
         android:label="@string/menu_profile"
         tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/nav_badge"
+        android:name="com.coreware.coreshipdriver.ui.fragments.BadgeFragment"
+        android:label="@string/menu_badge"
+        tools:layout="@layout/fragment_badge" />
+
+    <!-- Warehouse Navigation -->
+
+    <fragment
+        android:id="@+id/nav_express_pickup"
+        android:name="com.coreware.coreshipdriver.ui.fragments.ExpressPickupFragment"
+        android:label="@string/menu_express_pickup"
+        tools:layout="@layout/fragment_express_pickup" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.coreware.coreshipdriver.ui.fragments.SettingsFragment"
+        android:label="@string/menu_settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <!-- Other Navigation -->
+
+    <fragment
+        android:id="@+id/nav_about"
+        android:name="com.coreware.coreshipdriver.ui.fragments.AboutFragment"
+        android:label="@string/menu_about"
+        tools:layout="@layout/fragment_about" />
+
+    <fragment
+        android:id="@+id/nav_logout"
+        android:name="com.coreware.coreshipdriver.ui.fragments.LogoutFragment"
+        android:label="@string/menu_logout"
+        tools:layout="@layout/fragment_logout" />
+
 </navigation>
