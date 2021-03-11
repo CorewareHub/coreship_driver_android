@@ -1,22 +1,32 @@
 package com.coreware.coreshipdriver.ui.activities;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkRequest;
 import android.os.Bundle;
-import android.view.Menu;
+import android.util.Log;
 
 import com.coreware.coreshipdriver.R;
+import com.coreware.coreshipdriver.api.services.AuthenticationApiIntentService;
+import com.coreware.coreshipdriver.util.BroadcastUtil;
 import com.coreware.coreshipdriver.util.IntentLaunchUtil;
 import com.google.android.material.navigation.NavigationView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String LOG_TAG = MainActivity.class.getName();
 
     private AppBarConfiguration mAppBarConfiguration;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        monitorNetworkStatusChanges();
     }
 
     @Override
@@ -49,7 +61,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void logout() {
+        AuthenticationApiIntentService.startActionLogout(getApplicationContext());
         IntentLaunchUtil.launchLoginActivity(this);
         finish();
     }
+
+
+    /* Private methods */
+
+    private void monitorNetworkStatusChanges() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkRequest.Builder builder = new NetworkRequest.Builder();
+
+        connectivityManager.registerNetworkCallback(builder.build(), new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(@NonNull Network network) {
+                super.onAvailable(network);
+//                Log.i(LOG_TAG, "Network connection available");
+                BroadcastUtil.sendNetworkStatusChangedBroadcast(getApplicationContext());
+            }
+
+            @Override
+            public void onLost(@NonNull Network network) {
+                super.onLost(network);
+                Log.w(LOG_TAG, "Network connection lost.");
+                BroadcastUtil.sendNetworkStatusChangedBroadcast(getApplicationContext());
+            }
+        });
+    }
+
 }

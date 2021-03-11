@@ -29,6 +29,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
@@ -40,8 +41,8 @@ public abstract class CorewareAPI {
     private static final String LOG_TAG = CorewareAPI.class.getName();
 
     private class CorewareApiURL {
-        static final String BASE_PRODUCTION = "https://www.coreware.com";
-        static final String BASE_TEST = "https://www.coreware.com";
+        static final String BASE_PRODUCTION = "https://coreship.coreware.com/";
+        static final String BASE_TEST = "https://coreship.coreware.com/";
 
         class Path {
             static final String API = "api.php";
@@ -51,21 +52,39 @@ public abstract class CorewareAPI {
     }
 
     // Coreware API URL Action
+    protected final String ACTION_GET_USER_PROFILE = "get_user_profile";
     protected final String ACTION_LOGIN = "login";
     protected final String ACTION_LOGOUT = "logout";
 
     // API response keys
-    private final String RESPONSE_KEY_ERROR_MESSAGE = "error_message";
-    private final String RESPONSE_KEY_RESULT = "result";
+    public static final String RESPONSE_KEY_ADDRESS_1 = "address_1";
+    public static final String RESPONSE_KEY_ADDRESS_2 = "address_2";
+    public static final String RESPONSE_KEY_CITY = "city";
+    public static final String RESPONSE_KEY_COUNTRY_ID = "country_id";
+    public static final String RESPONSE_KEY_EMAIL_ADDRESS = "email_address";
+    public static final String RESPONSE_KEY_ERROR_MESSAGE = "error_message";
+    public static final String RESPONSE_KEY_FIRST_NAME = "first_name";
+    public static final String RESPONSE_KEY_LAST_NAME = "last_name";
+    public static final String RESPONSE_KEY_PHONE_NUMBER = "phone_number";
+    public static final String RESPONSE_KEY_PHONE_NUMBERS = "phone_numbers";
+    public static final String RESPONSE_KEY_POSTAL_CODE = "postal_code";
+    public static final String RESPONSE_KEY_RESULT = "result";
+    public static final String RESPONSE_KEY_SESSION_ID = "session_identifier";
+    public static final String RESPONSE_KEY_STATE = "state";
     private final String RESPONSE_KEY_UPDATE_CONTENT = "update_content";
+    public static final String RESPONSE_KEY_USER_ID = "user_id";
+    public static final String RESPONSE_KEY_USER_PROFILE = "user_profile";
+    public static final String RESPONSE_KEY_USER_TYPE = "user_type";
+    public static final String RESPONSE_KEY_USER_TYPE_ID = "user_type_id";
 
     // API response values
-    private final String RESPONSE_VALUE_RESULT_ERROR = "ERROR";
+    public static final String RESPONSE_VALUE_RESULT_ERROR = "ERROR";
     private final String RESPONSE_VALUE_RESULT_ERROR_LOGIN_REQUIRED = "Login Required";
     private final String RESPONSE_VALUE_RESULT_FORCE_UPDATE = "UPDATE";
-    private final String RESPONSE_VALUE_RESULT_OK = "OK";
+    public static final String RESPONSE_VALUE_RESULT_OK = "OK";
 
     // API required request keys
+    private final String REQUEST_KEY_CONNECTION_KEY = "device_identifier";
     private final String REQUEST_KEY_DEVICE_IDENTIFIER = "device_identifier";
     private final String REQUEST_KEY_LOCALIZATION_CODE = "localization_code";
     private final String REQUEST_KEY_MOBILE_APP_CODE = "api_app_code";
@@ -73,10 +92,12 @@ public abstract class CorewareAPI {
     private final String REQUEST_KEY_SESSION_ID = "session_identifier";
 
     // API request keys
-
+    protected final String REQUEST_KEY_PASSWORD = "password";
+    protected final String REQUEST_KEY_USERNAME = "user_name";
 
     // API request values
-    private final String REQUEST_VALUE_MOBILE_APP_CODE = "coreship_android";
+    private final String REQUEST_VALUE_CONNECTION_KEY = "E65F6E43E75486C437503BB3584ADAFA";
+    private final String REQUEST_VALUE_MOBILE_APP_CODE = "ANDROID_DRIVERS";
 
     private final String lineEnd = "\r\n";
     private final String requestBoundary = "*****";
@@ -95,6 +116,7 @@ public abstract class CorewareAPI {
             }
         }
         Context context = application.getApplicationContext();
+        requestParams.put(REQUEST_KEY_CONNECTION_KEY, REQUEST_VALUE_CONNECTION_KEY);
         requestParams.put(REQUEST_KEY_DEVICE_IDENTIFIER, getDeviceId(context));
         requestParams.put(REQUEST_KEY_LOCALIZATION_CODE, getLocalizationCode(context));
         requestParams.put(REQUEST_KEY_MOBILE_APP_CODE, REQUEST_VALUE_MOBILE_APP_CODE);
@@ -218,6 +240,24 @@ public abstract class CorewareAPI {
         }
     }
 
+    protected void sendRequest(Context context, JsonObjectRequest jsonObjectRequest) {
+        Log.i(LOG_TAG, "Sending request to: " + jsonObjectRequest);
+        Log.i(LOG_TAG, "Request params: " + getReadableRequestBody(jsonObjectRequest.getBody()));
+
+        if (!NetworkUtil.hasInternetConnection(context)) {
+            Log.w(LOG_TAG, "No internet connection!");
+        } else {
+            jsonObjectRequest.setShouldCache(false);
+
+            // set retry policy for timing out
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(7000,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+            // add request to queue
+            VolleyRequestQueue.getInstance(context.getApplicationContext()).addToRequestQueue(context, jsonObjectRequest);
+        }
+    }
+
     protected JSONObject sendRequestWithImage(Context context, String urlString, Map<String, String> params,
                                               String imagePath) {
 //        Log.i(LOG_TAG, "Sending request with image to: " + urlString);
@@ -323,6 +363,15 @@ public abstract class CorewareAPI {
 
     protected String buildImageUrl(Context context, String imageId) {
         return getCorewareImageUrl(context) + "?id=" + imageId;
+    }
+
+    private String getReadableRequestBody(byte[] requestBody) {
+        try {
+            return new String(requestBody, "UTF-8");
+        } catch(UnsupportedEncodingException e) {
+            Log.e(LOG_TAG, "Problem decoding request body: " + e.getLocalizedMessage(), e);
+            return null;
+        }
     }
 
     private String getCorewareApiUrl(Context context) {

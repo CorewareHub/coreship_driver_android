@@ -19,6 +19,10 @@ public class UserRepository {
         mUserDao = db.userDao();
     }
 
+    public User getByUserId(Long userId) {
+        return mUserDao.getByUserId(userId).getValue();
+    }
+
     public User getCurrentUser() {
         return mUserDao.getCurrentUser();
     }

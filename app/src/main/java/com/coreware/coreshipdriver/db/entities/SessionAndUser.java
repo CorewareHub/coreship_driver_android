@@ -10,7 +10,7 @@ public class SessionAndUser {
 
     @Relation(
             parentColumn = "sessionId",
-            entityColumn = "connectionSessionId"
+            entityColumn = "connectedSessionId"
     )
     public User user;
 

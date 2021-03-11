@@ -8,9 +8,11 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 public final class BroadcastUtil {
 
     // broadcast actions
+    public static final String ACTION_AUTHENTICATION_COMPLETE = "action_authentication_complete";
     public static final String ACTION_ERROR_LOGOUT = "action_error_logout";
     public static final String ACTION_ERROR_MESSAGE = "action_error_message";
     public static final String ACTION_FORCE_UPDATE = "action_force_update";
+    public static final String ACTION_NETWORK_STATUS_CHANGED = "action_network_status_changed";
     public static final String ACTION_NO_INTERNET = "action_no_internet";
 
     // broadcast keys
@@ -20,6 +22,12 @@ public final class BroadcastUtil {
 
     private BroadcastUtil() {
         // Cannot instantiate class
+    }
+
+
+    public static void sendAuthenticationCompleteBroadcast(Context context) {
+        Intent broadcast = new Intent(ACTION_AUTHENTICATION_COMPLETE);
+        sendBroadcast(context, broadcast);
     }
 
     public static void sendErrorLogoutBroadcast(Context context, String errorMessage) {
@@ -40,6 +48,11 @@ public final class BroadcastUtil {
     public static void sendForceUpdateBroadcast(Context context, String updateMessage) {
         Intent broadcast = new Intent(ACTION_FORCE_UPDATE);
         broadcast.putExtra(BROADCAST_KEY_UPDATE_MESSAGE, updateMessage);
+        sendBroadcast(context, broadcast);
+    }
+
+    public static void sendNetworkStatusChangedBroadcast(Context context) {
+        Intent broadcast = new Intent(ACTION_NETWORK_STATUS_CHANGED);
         sendBroadcast(context, broadcast);
     }
 
