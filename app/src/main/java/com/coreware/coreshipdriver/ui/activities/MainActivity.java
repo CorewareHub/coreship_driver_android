@@ -9,6 +9,8 @@ import android.util.Log;
 
 import com.coreware.coreshipdriver.R;
 import com.coreware.coreshipdriver.api.services.AuthenticationApiIntentService;
+import com.coreware.coreshipdriver.repositories.SessionRepository;
+import com.coreware.coreshipdriver.repositories.UserRepository;
 import com.coreware.coreshipdriver.util.BroadcastUtil;
 import com.coreware.coreshipdriver.util.IntentLaunchUtil;
 import com.google.android.material.navigation.NavigationView;
@@ -61,7 +63,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void logout() {
+        // Logout of the server
         AuthenticationApiIntentService.startActionLogout(getApplicationContext());
+
+        // Delete all session and users
+        SessionRepository sessionRepository = new SessionRepository(getApplication());
+        UserRepository userRepository = new UserRepository(getApplication());
+        userRepository.deleteAll();
+        sessionRepository.deleteAll();
+
+        // Navigate to the Login view
         IntentLaunchUtil.launchLoginActivity(this);
         finish();
     }

@@ -3,9 +3,9 @@
     package="com.coreware.coreshipdriver">
 
     <!-- Permissions -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="false"
@@ -16,7 +16,9 @@
         android:theme="@style/Theme.CoreSHIPDriver">
 
         <!-- Activities -->
-        <activity android:name=".ui.activities.LoginActivity">
+        <activity
+            android:name=".ui.activities.LaunchScreenActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,14 +26,19 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ui.activities.LoginActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:windowSoftInputMode="adjustResize"/>
+
         <activity
             android:name=".ui.activities.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.CoreSHIPDriver.NoActionBar"/>
+            android:theme="@style/Theme.CoreSHIPDriver.NoActionBar" />
 
         <!-- Services -->
-        <service android:name=".api.services.AuthenticationApiIntentService"
+        <service
+            android:name=".api.services.AuthenticationApiIntentService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
