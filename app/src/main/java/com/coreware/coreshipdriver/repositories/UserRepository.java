@@ -6,6 +6,8 @@ import com.coreware.coreshipdriver.db.CoreShipDatabase;
 import com.coreware.coreshipdriver.db.dao.UserDao;
 import com.coreware.coreshipdriver.db.entities.User;
 
+import androidx.lifecycle.LiveData;
+
 /**
  * Code based on https://developer.android.com/codelabs/android-room-with-a-view#7
  */
@@ -25,6 +27,10 @@ public class UserRepository {
 
     public User getCurrentUser() {
         return mUserDao.getCurrentUser();
+    }
+
+    public LiveData<User> getLiveDataCurrentUser() {
+        return mUserDao.getLiveDataCurrentUser();
     }
 
     /**

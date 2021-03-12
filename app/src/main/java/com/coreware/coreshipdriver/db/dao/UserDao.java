@@ -19,6 +19,9 @@ public interface UserDao {
     @Query("SELECT * FROM User LIMIT 1")
     User getCurrentUser();
 
+    @Query("SELECT * FROM User LIMIT 1")
+    LiveData<User> getLiveDataCurrentUser();
+
     @Update
     void update(User...users);
 
