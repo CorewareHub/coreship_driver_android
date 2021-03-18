@@ -6,9 +6,19 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragments.ExpressPickupFragment">
 
-    <androidx.camera.view.PreviewView
-        android:id="@+id/preview_view"
+    <com.coreware.coreshipdriver.camera.CameraSourcePreview
+        android:id="@+id/camera_preview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <include layout="@layout/camera_preview_overlay"/>
+
+    </com.coreware.coreshipdriver.camera.CameraSourcePreview>
+
+    <include
+        layout="@layout/top_action_bar_in_live_camera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

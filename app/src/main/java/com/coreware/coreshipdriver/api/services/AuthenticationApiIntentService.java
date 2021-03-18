@@ -126,7 +126,7 @@ public class AuthenticationApiIntentService extends CorewareIntentService {
                 }
 
                 // handle successful response
-
+                handleGetUserProfileResponse(response);
 
                 BroadcastUtil.sendAuthenticationCompleteBroadcast(getApplicationContext());
             } catch (JSONException e) {

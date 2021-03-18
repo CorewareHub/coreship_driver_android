@@ -26,6 +26,7 @@
 
     <!-- Express Pickup -->
     <string name="express_pickup_text">This is the Express Pickup view</string>
+    <string name="cd_close_button">Back</string>
 
     <!-- Incident Report -->
     <string name="incident_report_text">This is the Incident Report view</string>
@@ -53,5 +54,7 @@
 
     <!-- Sprint List -->
     <string name="sprint_list_text">This is the Sprint List view</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

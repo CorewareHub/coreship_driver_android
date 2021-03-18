@@ -3,143 +3,187 @@ package com.coreware.coreshipdriver.ui.fragments
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.camera.core.AspectRatio
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.PreviewView
+import androidx.camera.core.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.coreware.coreshipdriver.R
-import com.coreware.coreshipdriver.ui.viewmodels.CameraXViewModel
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
+import com.coreware.coreshipdriver.barcodedetection.BarcodeResultFragment
+import com.coreware.coreshipdriver.camera.CameraSource
+import com.coreware.coreshipdriver.camera.CameraSourcePreview
+import com.coreware.coreshipdriver.camera.GraphicOverlay
+import com.coreware.coreshipdriver.camera.WorkflowModel
+import com.google.android.gms.common.internal.Objects
+import com.coreware.coreshipdriver.barcodedetection.BarcodeField
+import com.coreware.coreshipdriver.barcodedetection.BarcodeProcessor
+import java.io.IOException
+import java.util.*
 
 /**
- * Based on https://github.com/android/camera-samples/blob/main/CameraXBasic/app/src/main/java/com/android/example/cameraxbasic/fragments/CameraFragment.kt
+ * Based on https://github.com/googlesamples/mlkit/blob/master/android/material-showcase/app/src/main/java/com/google/mlkit/md/LiveBarcodeScanningActivity.kt
+ * with additional input from
+ * https://github.com/android/camera-samples/blob/main/CameraXBasic/app/src/main/java/com/android/example/cameraxbasic/fragments/CameraFragment.kt
  * for CameraX fragment implementation and https://proandroiddev.com/building-barcode-qr-code-scanner-for-android-using-google-ml-kit-and-camerax-220b2852589e
  * for barcode integration with CameraX
  */
 class ExpressPickupFragment : Fragment() {
 
-    private lateinit var previewView: PreviewView
-
-    private var cameraProvider: ProcessCameraProvider? = null
-    private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
-    private var cameraSelector: CameraSelector? = null
-    private var preview: Preview? = null
+    private var cameraSource: CameraSource? = null
+    private var preview: CameraSourcePreview? = null
+    private var graphicOverlay: GraphicOverlay? = null
+    private var workflowModel: WorkflowModel? = null
+    private var currentWorkflowState: WorkflowModel.WorkflowState? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (isCameraPermissionGranted()) {
-            // start camera
-            setupCamera()
-        } else {
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), PERMISSION_CAMERA_REQUEST)
-        }
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val rootView = inflater.inflate(R.layout.fragment_express_pickup, container, false)
-        previewView = rootView.findViewById(R.id.preview_view)
+        preview = rootView.findViewById(R.id.camera_preview)
+        graphicOverlay = rootView.findViewById<GraphicOverlay>(R.id.camera_preview_graphic_overlay).apply {
+            cameraSource = CameraSource(this)
+        }
+
+        var closeButton: View = rootView.findViewById(R.id.close_button);
+        closeButton.setOnClickListener(View.OnClickListener {
+            requireActivity().onBackPressed()
+        })
+
+        setUpWorkflowModel()
         return rootView
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (requestCode == PERMISSION_CAMERA_REQUEST) {
             if (isCameraPermissionGranted()) {
                 // start camera
-                setupCamera()
             } else {
-                Log.w(LOG_TAG, "Camera permission not granted")
-                Toast.makeText(requireContext(), "Camera permission not granted", Toast.LENGTH_LONG).show()
+                Log.e(LOG_TAG, "no camera permission")
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        if (isCameraPermissionGranted()) {
+            // startCamera
+            workflowModel?.markCameraFrozen()
+            currentWorkflowState = WorkflowModel.WorkflowState.NOT_STARTED
+            if (cameraSource != null && graphicOverlay != null && workflowModel != null) {
+                cameraSource?.setFrameProcessor(BarcodeProcessor(graphicOverlay!!, workflowModel!!))
+            }
+            workflowModel?.setWorkflowState(WorkflowModel.WorkflowState.DETECTING)
+        } else {
+            ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(Manifest.permission.CAMERA),
+                    PERMISSION_CAMERA_REQUEST
+            )
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        currentWorkflowState = WorkflowModel.WorkflowState.NOT_STARTED
+        stopCameraPreview()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cameraSource?.release()
+        cameraSource = null
+    }
+
 
     /* Private methods */
 
-    private fun setupCamera() {
-        cameraSelector = CameraSelector.Builder()
-                .requireLensFacing(lensFacing)
-                .build()
-
-        ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application))
-                .get(CameraXViewModel::class.java)
-                .processCameraProvider
-                .observe(this, Observer { provider: ProcessCameraProvider?->
-                    cameraProvider = provider
-                    if (isCameraPermissionGranted()) {
-                        bindCameraUseCases()
-                    } else {
-                        ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), PERMISSION_CAMERA_REQUEST)
-                    }
-                })
-    }
-
-    private fun bindCameraUseCases() {
-        if (cameraProvider == null) {
-            Log.w(LOG_TAG, "CameraProvider was null when binding use cases")
-            return
-        }
-        if (preview != null) {
-            cameraProvider!!.unbind(preview)
-        }
-
-        val metrics = DisplayMetrics().also { previewView.display.getRealMetrics(it) }
-        val screenAspectRatio = aspectRatio(metrics.widthPixels, metrics.heightPixels)
-        val rotation = previewView.display.rotation
-        preview = Preview.Builder()
-                .setTargetAspectRatio(screenAspectRatio)
-                .setTargetRotation(rotation)
-                .build()
-        preview!!.setSurfaceProvider(previewView!!.surfaceProvider)
-
-        try {
-            cameraProvider!!.bindToLifecycle(this, cameraSelector!!, preview)
-        } catch (illegalStateException: IllegalStateException) {
-            Log.e(LOG_TAG, illegalStateException.localizedMessage, illegalStateException)
-        } catch (illegalArgumentException: IllegalArgumentException) {
-            Log.e(LOG_TAG, illegalArgumentException.localizedMessage, illegalArgumentException)
+    private fun startCameraPreview() {
+        val workflowModel = this.workflowModel ?: return
+        val cameraSource = this.cameraSource ?: return
+        if (!workflowModel.isCameraLive) {
+            try {
+                workflowModel.markCameraLive()
+                preview?.start(cameraSource)
+            } catch (e: IOException) {
+                Log.e(LOG_TAG, "Failed to start camera preview!", e)
+                cameraSource.release()
+                this.cameraSource = null
+            }
         }
     }
 
-    /**
-     *  Detecting the most suitable ratio for dimensions provided in @params by counting absolute
-     *  of preview ratio to one of the provided values.
-     *
-     *  @param width - preview width
-     *  @param height - preview height
-     *  @return suitable aspect ratio
-     */
-    private fun aspectRatio(width: Int, height: Int): Int {
-        val ratio = max(width, height).toDouble() / min(width, height)
-        if (abs(ratio - RATIO_4_3_VALUE) <= abs(ratio - RATIO_16_9_VALUE)) {
-            return AspectRatio.RATIO_4_3
+    private fun stopCameraPreview() {
+        val workflowModel = this.workflowModel ?: return
+        if (workflowModel.isCameraLive) {
+            workflowModel.markCameraFrozen()
+            preview?.stop()
         }
-        return AspectRatio.RATIO_16_9
     }
 
     private fun isCameraPermissionGranted(): Boolean {
         return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun setUpWorkflowModel() {
+        workflowModel = ViewModelProviders.of(this).get(WorkflowModel::class.java)
+
+        // Observes the workflow state changes, if happens, update the overlay view indicators and
+        // camera preview state.
+        workflowModel!!.workflowState.observe(this, Observer { workflowState ->
+            if (workflowState == null || Objects.equal(currentWorkflowState, workflowState)) {
+                return@Observer
+            }
+
+            currentWorkflowState = workflowState
+            Log.d(LOG_TAG, "Current workflow state: ${currentWorkflowState!!.name}")
+
+            when (workflowState) {
+                WorkflowModel.WorkflowState.DETECTING -> {
+//                    promptChip?.visibility = View.VISIBLE
+//                    promptChip?.setText(R.string.prompt_point_at_a_barcode)
+                    startCameraPreview()
+                }
+                WorkflowModel.WorkflowState.CONFIRMING -> {
+//                    promptChip?.visibility = View.VISIBLE
+//                    promptChip?.setText(R.string.prompt_move_camera_closer)
+                    startCameraPreview()
+                }
+                WorkflowModel.WorkflowState.SEARCHING -> {
+//                    promptChip?.visibility = View.VISIBLE
+//                    promptChip?.setText(R.string.prompt_searching)
+                    stopCameraPreview()
+                }
+                WorkflowModel.WorkflowState.DETECTED, WorkflowModel.WorkflowState.SEARCHED -> {
+//                    promptChip?.visibility = View.GONE
+                    stopCameraPreview()
+                }
+//                else -> promptChip?.visibility = View.GONE
+            }
+
+//            val shouldPlayPromptChipEnteringAnimation = wasPromptChipGone && promptChip?.visibility == View.VISIBLE
+//            promptChipAnimator?.let {
+//                if (shouldPlayPromptChipEnteringAnimation && !it.isRunning) it.start()
+//            }
+        })
+
+        workflowModel?.detectedBarcode?.observe(this, Observer { barcode ->
+            if (barcode != null) {
+                val barcodeFieldList = ArrayList<BarcodeField>()
+                barcodeFieldList.add(BarcodeField("Raw Value", barcode.rawValue ?: ""))
+                BarcodeResultFragment.show(requireActivity().supportFragmentManager, barcodeFieldList)
+            }
+        })
     }
 
     companion object {
