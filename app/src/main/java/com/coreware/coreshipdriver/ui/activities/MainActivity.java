@@ -6,11 +6,13 @@ import android.net.Network;
 import android.net.NetworkRequest;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import com.coreware.coreshipdriver.R;
 import com.coreware.coreshipdriver.api.services.AuthenticationApiIntentService;
+import com.coreware.coreshipdriver.api.services.DashboardApiIntentService;
 import com.coreware.coreshipdriver.db.entities.User;
 import com.coreware.coreshipdriver.repositories.SessionRepository;
 import com.coreware.coreshipdriver.repositories.UserRepository;
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
 
+    private NavigationView mNavigationView;
     private TextView mProfileUserFullName;
 
     private User mCurrentUser;
@@ -48,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        View headerView = navigationView.getHeaderView(0);
+        mNavigationView = findViewById(R.id.nav_view);
+        View headerView = mNavigationView.getHeaderView(0);
         mProfileUserFullName = headerView.findViewById(R.id.menu_profile_name);
 
         // Passing each menu ID as a set of Ids because each
@@ -63,11 +66,13 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
+        NavigationUI.setupWithNavController(mNavigationView, navController);
 
         initViewModels();
 
         monitorNetworkStatusChanges();
+
+        syncApp();
     }
 
     @Override
@@ -75,6 +80,12 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    public void navigateToExpressPickup() {
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        MenuItem expressPickup = mNavigationView.getMenu().findItem(R.id.nav_express_pickup);
+        NavigationUI.onNavDestinationSelected(expressPickup, navController);
     }
 
     public void logout() {
@@ -97,11 +108,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleCurrentUserUpdated(User currentUser) {
         mCurrentUser = currentUser;
-        mProfileUserFullName.setText(mCurrentUser.getFullName());
+        updateView();
     }
 
 
     /* Private methods */
+
+    private void updateView() {
+        if (mCurrentUser != null) {
+            mProfileUserFullName.setText(mCurrentUser.getFullName());
+        }
+    }
+
+    private void syncApp() {
+        AuthenticationApiIntentService.startActionGetUserProfile(getApplicationContext());
+        DashboardApiIntentService.startActionIsClockedIn(getApplicationContext());
+    }
 
     private void monitorNetworkStatusChanges() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

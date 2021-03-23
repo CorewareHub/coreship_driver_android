@@ -52,7 +52,10 @@ public abstract class CorewareAPI {
     }
 
     // Coreware API URL Action
+    protected final String ACTION_CLOCK_IN = "clock_in";
+    protected final String ACTION_CLOCK_OUT = "clock_out";
     protected final String ACTION_GET_USER_PROFILE = "get_user_profile";
+    protected final String ACTION_IS_CLOCKED_IN = "is_clocked_in";
     protected final String ACTION_LOGIN = "login";
     protected final String ACTION_LOGOUT = "logout";
 
@@ -81,7 +84,9 @@ public abstract class CorewareAPI {
     public static final String RESPONSE_VALUE_RESULT_ERROR = "ERROR";
     private final String RESPONSE_VALUE_RESULT_ERROR_LOGIN_REQUIRED = "Login Required";
     private final String RESPONSE_VALUE_RESULT_FORCE_UPDATE = "UPDATE";
+    public static final String RESPONSE_VALUE_RESULT_NO = "NO";
     public static final String RESPONSE_VALUE_RESULT_OK = "OK";
+    public static final String RESPONSE_VALUE_RESULT_YES = "YES";
 
     // API required request keys
     private final String REQUEST_KEY_CONNECTION_KEY = "device_identifier";

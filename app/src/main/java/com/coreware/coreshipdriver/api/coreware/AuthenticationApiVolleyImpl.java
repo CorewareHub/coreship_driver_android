@@ -94,7 +94,7 @@ public class AuthenticationApiVolleyImpl extends CorewareAPI {
     }
 
 
-    /* Private Methods */
+    /* Parameter Build Methods */
 
     private JSONObject buildGetUserProfileParams(final Application application)
             throws JSONException, PackageManager.NameNotFoundException {

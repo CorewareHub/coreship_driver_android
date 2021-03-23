@@ -25,6 +25,8 @@ public class User {
     private String state;
     private String username;
 
+    private boolean isClockedIn = false;
+
     public String getFullName() {
         StringBuilder fullNameBuilder = new StringBuilder();
 
@@ -65,6 +67,7 @@ public class User {
                 ", connectedSessionId='" + connectedSessionId + '\'' +
                 ", state='" + state + '\'' +
                 ", username='" + username + '\'' +
+                ", isClockedIn=" + isClockedIn +
                 '}';
     }
 
@@ -146,5 +149,11 @@ public class User {
     }
     public void setUsername(String username) {
         this.username = username;
+    }
+    public boolean isClockedIn() {
+        return isClockedIn;
+    }
+    public void setClockedIn(boolean clockedIn) {
+        isClockedIn = clockedIn;
     }
 }

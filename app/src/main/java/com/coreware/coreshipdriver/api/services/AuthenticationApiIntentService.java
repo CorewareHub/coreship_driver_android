@@ -220,8 +220,6 @@ public class AuthenticationApiIntentService extends CorewareIntentService {
         user.setUsername(emailAddress);
 
         userRepository.update(user);
-
-        BroadcastUtil.sendAuthenticationCompleteBroadcast(getApplicationContext());
     }
 
     private void handleLoginResponse(JSONObject responseJson) throws Exception {
@@ -261,6 +259,7 @@ public class AuthenticationApiIntentService extends CorewareIntentService {
                     user = new User();
                     user.setUserId(userId);
                     user.setConnectedSessionId(session.getSessionId());
+                    user.setClockedIn(false);
                     userRepository.insert(user);
                 } else {
                     // if user does exist, update session id
@@ -268,8 +267,7 @@ public class AuthenticationApiIntentService extends CorewareIntentService {
                     userRepository.update(user);
                 }
 
-                // get the user's profile
-                handleActionGetUserProfile();
+                BroadcastUtil.sendAuthenticationCompleteBroadcast(getApplicationContext());
             }
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Error getting data from login response: " + e.getLocalizedMessage(), e);
